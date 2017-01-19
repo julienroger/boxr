@@ -30,7 +30,6 @@ describe Boxr::Client do
   COMMENT_MESSAGE = 'this is a comment'
   REPLY_MESSAGE = 'this is a comment reply'
   CHANGED_COMMENT_MESSAGE = 'this comment has been changed'
-  TEST_USER_LOGIN = "test-boxr-user@#{('a'..'z').to_a.shuffle[0,10].join}.com" #needs to be unique across anyone running this test
   TEST_USER_NAME = "Test Boxr User"
   TEST_GROUP_NAME= "Test Boxr Group"
   TEST_TASK_MESSAGE = "Please review"
@@ -54,7 +53,11 @@ describe Boxr::Client do
       BOX_CLIENT.delete_user(u, force: true)
     end
     sleep BOX_SERVER_SLEEP
-    test_user = BOX_CLIENT.create_user(TEST_USER_NAME, login: TEST_USER_LOGIN)
+    user_email_prefix = SecureRandom.uuid.gsub('-', '')[0..10]
+    user_email_suffix = SecureRandom.uuid.gsub('-', '')[0..10]
+    user_email = "#{user_email_prefix}@#{user_email_suffix}.com"
+
+    test_user = BOX_CLIENT.create_user(TEST_USER_NAME, login: user_email)
     @test_user = test_user
 
     all_groups = BOX_CLIENT.groups
@@ -298,8 +301,11 @@ describe Boxr::Client do
     expect(user.name).to eq(new_name)
 
     puts "add email alias for user"
-    email_alias = "test-boxr-user-alias@boxntest.com" #{('a'..'z').to_a.shuffle[0,10].join}.com"
-    new_alias = BOX_CLIENT.add_email_alias_for_user(@test_user, email_alias)
+    alias_email_prefix = SecureRandom.uuid.gsub('-', '')[0..10]
+    alias_email_suffix = SecureRandom.uuid.gsub('-', '')[0..10]
+    alias_email = "#{alias_email_prefix}@#{alias_email_suffix}.com"
+
+    new_alias = BOX_CLIENT.add_email_alias_for_user(@test_user, alias_email)
     expect(new_alias.type).to eq('email_alias')
 
     puts "get email aliases for user"
